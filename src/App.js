@@ -1,37 +1,37 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-// ── Palette ───────────────────────────────────────────────
 const C = {
-  pageBg:     "#F5F0E8",
-  sidebar:    "#1E1A12",
-  sideHov:    "#2C2518",
-  sideAct:    "#2C2518",
-  accent:     "#C94F0A",
-  accentHov:  "#A83F08",
-  card:       "#FFFFFF",
-  cardHov:    "#FDFAF6",
-  border:     "#E2D9CE",
-  borderSoft: "#EDE6DC",
-  text:       "#1A1510",
-  text2:      "#6E6358",
-  text3:      "#ADA196",
-  inputBg:    "#EDE8E0",
-  doneText:   "#A09488",
-  shadow:     "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-  shadowMd:   "0 4px 14px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06)",
-  shadowDrag: "0 8px 28px rgba(0,0,0,0.16), 0 2px 6px rgba(0,0,0,0.1)",
+  pageBg:     "#0F1923",
+  sidebar:    "#0A1628",
+  sideHov:    "#112240",
+  sideAct:    "#112240",
+  accent:     "#D4A853",
+  accentHov:  "#B8923F",
+  card:       "#162032",
+  cardHov:    "#1A2840",
+  border:     "#1E3050",
+  borderSoft: "#1A2A45",
+  text:       "#E8EDF5",
+  text2:      "#8A9BB5",
+  text3:      "#4A5A75",
+  inputBg:    "#0D1B2E",
+  doneText:   "#4A5A75",
+  shadow:     "0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)",
+  shadowMd:   "0 4px 14px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.2)",
+  shadowDrag: "0 8px 28px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3)",
 };
 
 const PRI = {
-  high: { color: "#B83232", bg: "#FBF0F0", label: "High" },
-  mid:  { color: "#C94F0A", bg: "#FBF3EE", label: "Medium" },
-  low:  { color: "#3A7A50", bg: "#EEF7F1", label: "Low" },
+  high: { color: "#E8634A", bg: "#1E2535", label: "High" },
+  mid:  { color: "#D4A853", bg: "#1A2535", label: "Medium" },
+  low:  { color: "#4CAF82", bg: "#152535", label: "Low" },
 };
+
 const CAT = {
-  work:     { ink: "#1E56A0", bg: "#EEF4FC", label: "Work" },
-  personal: { ink: "#7B2F8A", bg: "#F6EEF8", label: "Personal" },
-  health:   { ink: "#246B42", bg: "#EEF6F1", label: "Health" },
-  study:    { ink: "#9A6510", bg: "#FBF5E8", label: "Study" },
+  work:     { ink: "#5B9BD5", bg: "#0D1B2E", label: "Work" },
+  personal: { ink: "#B07FD4", bg: "#140D2E", label: "Personal" },
+  health:   { ink: "#4CAF82", bg: "#0D2E1E", label: "Health" },
+  study:    { ink: "#D4A853", bg: "#2E1E0D", label: "Study" },
 };
 const QUOTES = ["Begin.", "Keep going.", "One thing at a time.", "Stay the course.", "Almost there.", "Well done.", "All clear."];
 const SEEDS = [
@@ -74,6 +74,94 @@ function Spark({ x, y, color, onDone }) {
     "--ty": `${Math.sin(a.current) * r.current}px`,
   }} />;
 }
+// DatePicker
+function DatePicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [viewYear, setViewYear] = useState(() => value ? new Date(value).getFullYear() : new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(() => value ? new Date(value).getMonth() : new Date().getMonth());
+
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+
+  const selectDate = (day) => {
+    const mm = String(viewMonth + 1).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    onChange(`${viewYear}-${mm}-${dd}`);
+    setOpen(false);
+  };
+
+  const displayValue = value
+    ? new Date(value + 'T00:00:00').toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "Pick a date";
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setOpen(o => !o)} style={{
+        width: "100%", height: 38, padding: "0 12px", background: "#0D1B2E",
+        border: `1px solid ${open ? C.accent : C.border}`, borderRadius: 7,
+        color: value ? C.text : C.text3, fontSize: 13, fontFamily: "inherit",
+        cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between"
+      }}>
+        <span>{displayValue}</span>
+        <span style={{ fontSize: 10, opacity: 0.5 }}>▼</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: "absolute", top: 44, left: 0, zIndex: 100, width: 260,
+          background: "#162032", border: `1px solid ${C.border}`, borderRadius: 10,
+          boxShadow: "0 8px 28px rgba(0,0,0,0.5)", padding: "12px"
+        }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <button onClick={() => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y-1); } else setViewMonth(m => m-1); }}
+              style={{ background: "none", border: "none", color: C.text2, cursor: "pointer", fontSize: 16, padding: "0 6px" }}>‹</button>
+            <span style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{MONTHS[viewMonth]} {viewYear}</span>
+            <button onClick={() => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y+1); } else setViewMonth(m => m+1); }}
+              style={{ background: "none", border: "none", color: C.text2, cursor: "pointer", fontSize: 16, padding: "0 6px" }}>›</button>
+          </div>
+
+          {/* Day labels */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", marginBottom: 4 }}>
+            {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => (
+              <div key={d} style={{ textAlign: "center", fontSize: 10, color: C.text3, padding: "2px 0" }}>{d}</div>
+            ))}
+          </div>
+
+          {/* Days */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
+            {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const day = i + 1;
+              const mm = String(viewMonth + 1).padStart(2, '0');
+              const dd = String(day).padStart(2, '0');
+              const isSelected = value === `${viewYear}-${mm}-${dd}`;
+              const isToday = new Date().toISOString().split('T')[0] === `${viewYear}-${mm}-${dd}`;
+              return (
+                <button key={day} onClick={() => selectDate(day)} style={{
+                  width: "100%", aspectRatio: "1", border: "none", borderRadius: 6,
+                  background: isSelected ? C.accent : isToday ? C.accent + "22" : "transparent",
+                  color: isSelected ? "#0F1923" : isToday ? C.accent : C.text,
+                  fontSize: 12, cursor: "pointer", fontFamily: "inherit", fontWeight: isSelected ? 700 : 400,
+                }}>{day}</button>
+              );
+            })}
+          </div>
+
+          {/* Clear */}
+          {value && (
+            <button onClick={() => { onChange(""); setOpen(false); }} style={{
+              marginTop: 8, width: "100%", padding: "6px", background: "transparent",
+              border: `1px solid ${C.border}`, borderRadius: 6, color: C.text3,
+              fontSize: 12, cursor: "pointer", fontFamily: "inherit"
+            }}>Clear date</button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Sidebar nav item ──────────────────────────────────────
 function SLink({ label, n, active, dot, onClick }) {
@@ -85,7 +173,7 @@ function SLink({ label, n, active, dot, onClick }) {
         display: "flex", alignItems: "center", gap: 10,
         width: "100%", padding: "8px 16px", border: "none", cursor: "pointer",
         background: active ? C.sideAct : hov ? "#28200F" : "transparent",
-        color: active ? "#F0E8D8" : "#7A6848",
+        color: active ? "#F0E8D8" : "#A89878",
         fontSize: 13, fontFamily: "inherit", textAlign: "left",
         borderRadius: 6, marginBottom: 2,
         transition: "background 0.12s, color 0.12s",
@@ -113,7 +201,7 @@ function SLink({ label, n, active, dot, onClick }) {
 function TaskCard({ t, onToggle, onDelete, onEdit, dragHandleProps, isDragging, isOver }) {
   const [hov, setHov] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [editText, setEditText] = useState(t.text);
+  const [editText, setEditText] = useState(t.title || t.title || t.title || t.text);
   const editRef = useRef();
 
   const due = dueLabel(t.due);
@@ -121,12 +209,12 @@ function TaskCard({ t, onToggle, onDelete, onEdit, dragHandleProps, isDragging, 
   const cc = CAT[t.cat];
   const ov = !t.done && isOverdue(t.due);
 
-  const commitEdit = () => {
-    const v = editText.trim();
-    if (v && v !== t.text) onEdit(t.id, { text: v });
-    else setEditText(t.text);
-    setEditing(false);
-  };
+const commitEdit = () => {
+  const v = editText.trim();
+  if (v && v !== (t.title || t.text)) onEdit(t._id, { title: v });
+  else setEditText(t.title || t.text);
+  setEditing(false);
+};
 
   useEffect(() => { if (editing) editRef.current?.focus(); }, [editing]);
 
@@ -168,7 +256,7 @@ function TaskCard({ t, onToggle, onDelete, onEdit, dragHandleProps, isDragging, 
       </div>
 
       {/* Checkbox */}
-      <button id={`c-${t.id}`} onClick={() => onToggle(t.id)}
+      <button id={`c-${t._id}`} onClick={() => onToggle(t._id)}
         style={{
           width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
           border: `1.5px solid ${t.done ? p.color : "#C8BEB4"}`,
@@ -192,7 +280,7 @@ function TaskCard({ t, onToggle, onDelete, onEdit, dragHandleProps, isDragging, 
             value={editText}
             onChange={e => setEditText(e.target.value)}
             onBlur={commitEdit}
-            onKeyDown={e => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") { setEditText(t.text); setEditing(false); } }}
+            onKeyDown={e => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") { setEditText(t.title || t.title || t.title || t.text); setEditing(false); } }}
             style={{
               width: "100%", fontSize: 13.5, fontFamily: "inherit", color: C.text,
               background: "transparent", border: "none", borderBottom: `1.5px solid ${C.accent}`,
@@ -211,7 +299,7 @@ function TaskCard({ t, onToggle, onDelete, onEdit, dragHandleProps, isDragging, 
               cursor: t.done ? "default" : "text",
             }}
           >
-            {t.text}
+            {t.title || t.title || t.title || t.text}
           </div>
         )}
 
@@ -262,7 +350,7 @@ function TaskCard({ t, onToggle, onDelete, onEdit, dragHandleProps, isDragging, 
           </button>
         )}
         <button
-          onClick={() => onDelete(t.id)}
+          onClick={() => onDelete(t._id)}
           title="Delete"
           style={{
             width: 26, height: 26, border: "none", borderRadius: 6,
@@ -302,8 +390,8 @@ function DraggableList({ items, onReorder, renderItem }) {
     e.preventDefault();
     if (!dragging || dragging === targetId) { setDragging(null); setOver(null); return; }
     const arr = [...items];
-    const from = arr.findIndex(i => i.id === dragging);
-    const to = arr.findIndex(i => i.id === targetId);
+    const from = arr.findIndex(i => i._id === dragging);
+    const to = arr.findIndex(i => i._id === targetId);
     const [moved] = arr.splice(from, 1);
     arr.splice(to, 0, moved);
     onReorder(arr);
@@ -316,18 +404,25 @@ function DraggableList({ items, onReorder, renderItem }) {
     <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
       {items.map(item => renderItem(item, {
         draggable: true,
-        onDragStart: e => handleDragStart(e, item.id),
-        onDragOver: e => handleDragOver(e, item.id),
-        onDrop: e => handleDrop(e, item.id),
+        onDragStart: e => handleDragStart(e, item._id),
+        onDragOver: e => handleDragOver(e, item._id),
+        onDrop: e => handleDrop(e, item._id),
         onDragEnd: handleDragEnd,
-      }, dragging === item.id, over === item.id && dragging !== item.id))}
+      }, dragging === item._id, over === item._id && dragging !== item._id))}
     </div>
   );
 }
 
 // ── App ───────────────────────────────────────────────────
 export default function App() {
-  const [todos, setTodos] = useState(SEEDS);
+  const [token, setToken] = useState(null);
+  const [isSignup, setIsSignup] = useState(true);
+  useEffect(() => {
+  if (token) {
+    fetchTodos(token)
+  }
+}, [token])
+  const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
   const [pri, setPri] = useState("mid");
   const [cat, setCat] = useState("personal");
@@ -347,15 +442,61 @@ export default function App() {
   const overdueN = todos.filter(t => !t.done && isOverdue(t.due)).length;
   const pct = total > 0 ? Math.round(doneN / total * 100) : 0;
 
-  const addTodo = () => {
-    const text = input.trim(); if (!text) { ref.current?.focus(); return; }
-    setTodos(p => [{ id: nextId, text, done: false, priority: pri, cat, due, ts: Date.now() }, ...p]);
-    setNextId(n => n + 1); setInput(""); setDue("");
-    ref.current?.focus();
-  };
+  const login = async (email, password) => {
+  const res = await fetch('http://localhost:3000/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  })
+  const data = await res.json()
+  setToken(data.token)
+}
+const signup = async (firstName, lastName, email, password, confirmPassword) => {
+  if (password !== confirmPassword) {
+    alert('Passwords do not match!')
+    return
+  }
+  const res = await fetch('http://localhost:3000/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ firstName, lastName, email, password })
+  })
+  const data = await res.json()
+  if (data.message === 'Signup successful!') {
+    alert('Account created! Please login.')
+    setIsSignup(false)
+  } else {
+    alert(data.message)
+  }
+}
+const fetchTodos = async (tkn) => {
+  const res = await fetch('http://localhost:3000/todos', {
+    headers: { 'authorization': tkn }
+  })
+  const data = await res.json()
+  setTodos(data)
+}
+ const addTodo = async () => {
+  const text = input.trim()
+  if (!text) { ref.current?.focus(); return; }
+  
+  const res = await fetch('http://localhost:3000/todos', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': token
+    },
+    body: JSON.stringify({ title: text, completed: false, cat: cat, priority: pri, due: due })
+  })
+  const data = await res.json()
+  setTodos(p => [data, ...p])
+  setInput("")
+  setDue("")
+  ref.current?.focus()
+}
 
-  const toggle = id => {
-    const task = todos.find(t => t.id === id);
+const toggle = async (id) => {
+    const task = todos.find(t => t._id === id);
     if (task && !task.done) {
       const el = document.getElementById(`c-${id}`);
       if (el) {
@@ -367,12 +508,36 @@ export default function App() {
         }))]);
       }
     }
-    setTodos(p => p.map(t => t.id === id ? { ...t, done: !t.done } : t));
+    await fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': token
+      },
+      body: JSON.stringify({ done: !task.done })
+    })
+    setTodos(p => p.map(t => t._id === id ? { ...t, done: !t.done } : t));
   };
 
-  const del = id => setTodos(p => p.filter(t => t.id !== id));
+  const del = async (id) => {
+  await fetch(`http://localhost:3000/todos/${id}`, {
+    method: 'DELETE',
+    headers: { 'authorization': token }
+  })
+  setTodos(p => p.filter(t => t._id !== id))
+}
   const clear = () => setTodos(p => p.filter(t => !t.done));
-  const editTask = (id, patch) => setTodos(p => p.map(t => t.id === id ? { ...t, ...patch} : t));
+const editTask = async (id, patch) => {
+  await fetch(`http://localhost:3000/todos/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': token
+    },
+    body: JSON.stringify(patch)
+  })
+  setTodos(p => p.map(t => t._id === id ? { ...t, ...patch } : t))
+}
   const reorder = newArr => setTodos(newArr);
 
   // Build filtered+sorted list (for display)
@@ -383,7 +548,7 @@ export default function App() {
     if (Object.keys(CAT).includes(filter)) return t.cat === filter;
     return true;
   });
-  if (q.trim()) list = list.filter(t => t.text.toLowerCase().includes(q.toLowerCase()));
+  if (q.trim()) list = list.filter(t => t.title || t.title || t.text.toLowerCase().includes(q.toLowerCase()));
   
   // If search or filter active, sort; otherwise use manual order
   if (q.trim() || filter !== "all") {
@@ -405,7 +570,7 @@ export default function App() {
         <div style={{ fontFamily: "Georgia,'Times New Roman',serif", fontSize: 19, color: "#EDE0CC", letterSpacing: -0.3, fontWeight: 400 }}>
           Tasks
         </div>
-        <div style={{ fontSize: 11.5, color: "#4A3A22", marginTop: 5 }}>
+        <div style={{ fontSize: 11.5, color: "#8A9BB5", marginTop: 5 }}>
           {QUOTES[Math.min(doneN, QUOTES.length - 1)]}
         </div>
       </div>
@@ -413,7 +578,7 @@ export default function App() {
       {/* Progress */}
       <div style={{ padding: "18px 20px 0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
-          <span style={{ fontSize: 10, color: "#4A3A22", letterSpacing: 0.8, textTransform: "uppercase", fontWeight: 700 }}>Progress</span>
+          <span style={{ fontSize: 10, color: "#8A9BB5", letterSpacing: 0.8, textTransform: "uppercase", fontWeight: 700 }}>Progress</span>
           <span style={{ fontSize: 11, color: pct === 100 ? "#3A7A50" : C.accent, fontWeight: 700 }}>{pct}%</span>
         </div>
         <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
@@ -424,14 +589,14 @@ export default function App() {
           }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
-          <span style={{ fontSize: 10, color: "#3A2E1C" }}>{doneN} done</span>
-          <span style={{ fontSize: 10, color: "#3A2E1C" }}>{activeN} left</span>
+          <span style={{ fontSize: 10, color: "#8A9BB5" }}>{doneN} done</span>
+          <span style={{ fontSize: 10, color: "#8A9BB5" }}>{activeN} left</span>
         </div>
       </div>
 
       {/* Views */}
       <nav style={{ padding: "22px 10px 6px" }}>
-        <div style={{ fontSize: 9.5, color: "#3A2E1C", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700, padding: "0 16px", marginBottom: 6 }}>Views</div>
+        <div style={{ fontSize: 9.5, color: "#8A9BB5", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700, padding: "0 16px", marginBottom: 6 }}>Views</div>
         <SLink label="All tasks"   n={total}    active={filter === "all"}     onClick={() => { setFilter("all");     setSideOpen(false); }} />
         <SLink label="In progress" n={activeN}  active={filter === "active"}  onClick={() => { setFilter("active");  setSideOpen(false); }} />
         <SLink label="Completed"   n={doneN}    active={filter === "done"}    onClick={() => { setFilter("done");    setSideOpen(false); }} />
@@ -440,30 +605,96 @@ export default function App() {
 
       {/* Categories */}
       <nav style={{ padding: "10px 10px 6px" }}>
-        <div style={{ fontSize: 9.5, color: "#3A2E1C", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700, padding: "0 16px", marginBottom: 6 }}>Categories</div>
+        <div style={{ fontSize: 9.5,color: "#8A9BB5", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700, padding: "0 16px", marginBottom: 6 }}>Categories</div>
         {Object.entries(CAT).map(([key, { ink, label }]) => (
           <SLink key={key} label={label} active={filter === key} dot={ink} onClick={() => { setFilter(key); setSideOpen(false); }} />
         ))}
       </nav>
 
       {/* Footer */}
-      <div style={{ marginTop: "auto", padding: "18px 20px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: "rgba(201,79,10,0.18)", border: "1px solid rgba(201,79,10,0.28)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 12, fontWeight: 700, color: C.accent, flexShrink: 0,
-          }}
-          >U</div>
-          <div>
-            <div style={{ fontSize: 12.5, color: "#C8B898", fontWeight: 500 }}>My workspace</div>
-            <div style={{ fontSize: 11, color: "#4A3A22" }}>{activeN} open</div>
-          </div>
-        </div>
-      </div>
+ <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <div style={{
+      width: 32, height: 32, borderRadius: 8,
+      background: "rgba(201,79,10,0.18)", border: "1px solid rgba(201,79,10,0.28)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 12, fontWeight: 700, color: C.accent, flexShrink: 0,
+    }}>U</div>
+    <div>
+      <div style={{ fontSize: 12.5, color: "#C8B898", fontWeight: 500 }}>My workspace</div>
+      <div style={{ fontSize: 11, color: "#8A9BB5" }}>{activeN} open</div>
+    </div>
+  </div>
+  <button onClick={() => setToken(null)} style={{
+    padding: "4px 10px", background: "transparent",
+    border: `1px solid ${C.border}`, borderRadius: 6, color: C.text3,
+    fontSize: 11, cursor: "pointer", fontFamily: "inherit"
+  }}>Logout</button>
+</div>
     </>
   );
+if (!token) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0F1923' }}>
+      <div style={{ background: '#162032', padding: '40px', borderRadius: '12px', width: '340px', border: '1px solid #1E3050', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+        
+        {isSignup ? (
+          <>
+            <h2 style={{ marginBottom: '8px', fontFamily: 'Georgia,serif', color: '#E8EDF5', fontWeight: 400, fontSize: '24px' }}>Create Account</h2>
+            <p style={{ marginBottom: '24px', fontSize: '13px', color: '#8A9BB5' }}>Join to manage your tasks</p>
+            {['fn','ln','sem','spw','cpw'].map((id, i) => (
+              <input key={id} type={i > 2 ? 'password' : i === 2 ? 'email' : 'text'}
+                placeholder={['First Name','Last Name','Email','Password','Confirm Password'][i]}
+                id={id}
+                style={{ width: '100%', padding: '10px 14px', marginBottom: '10px', borderRadius: '7px', border: '1px solid #1E3050', fontSize: '13px', background: '#0D1B2E', color: '#E8EDF5', outline: 'none', fontFamily: 'inherit' }}
+              />
+            ))}
+            <button onClick={() => signup(
+              document.getElementById('fn').value,
+              document.getElementById('ln').value,
+              document.getElementById('sem').value,
+              document.getElementById('spw').value,
+              document.getElementById('cpw').value
+            )}
+              style={{ width: '100%', padding: '11px', background: '#D4A853', color: '#0F1923', border: 'none', borderRadius: '7px', fontSize: '14px', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit', marginTop: '4px' }}
+            >
+              Sign Up
+            </button>
+            <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#8A9BB5' }}>
+              Already have an account?{' '}
+              <span onClick={() => setIsSignup(false)} style={{ color: '#D4A853', cursor: 'pointer', fontWeight: '600' }}>
+                Login
+              </span>
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 style={{ marginBottom: '8px', fontFamily: 'Georgia,serif', color: '#E8EDF5', fontWeight: 400, fontSize: '24px' }}>Welcome Back</h2>
+            <p style={{ marginBottom: '24px', fontSize: '13px', color: '#8A9BB5' }}>Login to your workspace</p>
+            <input type="email" placeholder="Email" id="em"
+              style={{ width: '100%', padding: '10px 14px', marginBottom: '10px', borderRadius: '7px', border: '1px solid #1E3050', fontSize: '13px', background: '#0D1B2E', color: '#E8EDF5', outline: 'none', fontFamily: 'inherit' }}
+            />
+            <input type="password" placeholder="Password" id="pw"
+              style={{ width: '100%', padding: '10px 14px', marginBottom: '16px', borderRadius: '7px', border: '1px solid #1E3050', fontSize: '13px', background: '#0D1B2E', color: '#E8EDF5', outline: 'none', fontFamily: 'inherit' }}
+            />
+            <button onClick={() => login(document.getElementById('em').value, document.getElementById('pw').value)}
+              style={{ width: '100%', padding: '11px', background: '#D4A853', color: '#0F1923', border: 'none', borderRadius: '7px', fontSize: '14px', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}
+            >
+              Login
+            </button>
+            <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#8A9BB5' }}>
+              Don't have an account?{' '}
+              <span onClick={() => setIsSignup(true)} style={{ color: '#D4A853', cursor: 'pointer', fontWeight: '600' }}>
+                Sign Up
+              </span>
+            </p>
+          </>
+        )}
+
+      </div>
+    </div>
+  )
+}
 
   return (
     <div style={{ fontFamily: "'Inter','Helvetica Neue',Arial,sans-serif", display: "grid", gridTemplateColumns: "230px 1fr", minHeight: "100vh" }}>
@@ -643,12 +874,10 @@ export default function App() {
 
             <div className="form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <div>
-                <div style={{ fontSize: 11, color: C.text3, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.7, marginBottom: 7 }}>Due date</div>
-                <input type="date" value={due} onChange={e => setDue(e.target.value)}
-                  style={{ ...baseInput, width: "100%", height: 38, padding: "0 12px" }}
-                  onFocus={e => { e.target.style.borderColor = C.accent; e.target.style.boxShadow = `0 0 0 3px ${C.accent}18`; }}
-                  onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = "none"; }}
-                />
+               <div>
+  <div style={{ fontSize: 11, color: C.text3, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.7, marginBottom: 7 }}>Due date</div>
+  <DatePicker value={due} onChange={setDue} />
+</div>
               </div>
               <div>
                 <div style={{ fontSize: 11, color: C.text3, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.7, marginBottom: 7 }}>Priority</div>
@@ -708,7 +937,7 @@ export default function App() {
           onReorder={reorder}
           renderItem={(todo, dragProps, isDragging, isOver) => (
             <TaskCard
-              key={todo.id}
+              key={todo._id}
               t={todo}
               onToggle={toggle}
               onDelete={del}
