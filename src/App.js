@@ -1,4 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import axios from 'axios';
+
+// Yahan se hi pura app apna backend URL leta hai.
+// Ab saari fetch() calls bhi yahi URL use karengi (localhost hata diya gaya).
+const API_URL = 'https://to-dos-list-backend.vercel.app';
+axios.defaults.baseURL = API_URL;
 
 const C = {
   pageBg:     "#0F1923",
@@ -443,7 +449,7 @@ export default function App() {
   const pct = total > 0 ? Math.round(doneN / total * 100) : 0;
 
   const login = async (email, password) => {
-  const res = await fetch('http://localhost:3000/login', {
+  const res = await fetch(`${API_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -456,7 +462,7 @@ const signup = async (firstName, lastName, email, password, confirmPassword) => 
     alert('Passwords do not match!')
     return
   }
-  const res = await fetch('http://localhost:3000/signup', {
+  const res = await fetch(`${API_URL}/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ firstName, lastName, email, password })
@@ -470,7 +476,7 @@ const signup = async (firstName, lastName, email, password, confirmPassword) => 
   }
 }
 const fetchTodos = async (tkn) => {
-  const res = await fetch('http://localhost:3000/todos', {
+  const res = await fetch(`${API_URL}/todos`, {
     headers: { 'authorization': tkn }
   })
   const data = await res.json()
@@ -480,7 +486,7 @@ const fetchTodos = async (tkn) => {
   const text = input.trim()
   if (!text) { ref.current?.focus(); return; }
   
-  const res = await fetch('http://localhost:3000/todos', {
+  const res = await fetch(`${API_URL}/todos`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -508,7 +514,7 @@ const toggle = async (id) => {
         }))]);
       }
     }
-    await fetch(`http://localhost:3000/todos/${id}`, {
+    await fetch(`${API_URL}/todos/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -520,7 +526,7 @@ const toggle = async (id) => {
   };
 
   const del = async (id) => {
-  await fetch(`http://localhost:3000/todos/${id}`, {
+  await fetch(`${API_URL}/todos/${id}`, {
     method: 'DELETE',
     headers: { 'authorization': token }
   })
@@ -528,7 +534,7 @@ const toggle = async (id) => {
 }
   const clear = () => setTodos(p => p.filter(t => !t.done));
 const editTask = async (id, patch) => {
-  await fetch(`http://localhost:3000/todos/${id}`, {
+  await fetch(`${API_URL}/todos/${id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
